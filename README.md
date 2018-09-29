@@ -4,7 +4,9 @@ PyTorch reimplementation for ACL2018 paper [copy re](http://aclweb.org/anthology
 
 Official tensorflow version [copy_re_tensorflow](https://github.com/xiangrongzeng/copy_re)
 
+## Environment
 
+pytorch 0.4.0
 
 ## Modify the Data path
 
