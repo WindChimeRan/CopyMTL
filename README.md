@@ -7,6 +7,7 @@ Official tensorflow version [copy_re_tensorflow](https://github.com/xiangrongzen
 ## Environment
 
 python3
+
 pytorch 0.4.0
 
 ## Modify the Data path
