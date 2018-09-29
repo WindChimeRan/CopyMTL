@@ -70,7 +70,7 @@ class Config:
         data_home = os.path.join(home, 'data', DataSet.name)
         if DataSet.name == DataSet.NYT:
             self.words_number = 90760
-            self.embedding_dim = 100
+            self.embedding_dim = 300
             self.relation_number = 25
             self.max_sentence_length = 100
             self.origin_file_path = os.path.join(data_home, 'origin/')
@@ -86,7 +86,7 @@ class Config:
             self.summary_filename = os.path.join(self.runner_path, 'seq2seq_re_graph')
         if DataSet.name == DataSet.WEBNLG:
             self.words_number = 5928
-            self.embedding_dim = 100
+            self.embedding_dim = 200
             self.relation_number = 247
             self.max_sentence_length = 80
             data_home = os.path.join(data_home, 'entity_end_position')

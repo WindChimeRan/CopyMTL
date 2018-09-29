@@ -1,0 +1,14 @@
+*.pyc
+
+/__pycache__
+/.pytest_cache
+/.mypy_cache
+/.python-version
+
+data/webnlg/original
+data/nyt
+
+*.pkl
+/test_*
+
+log.txt
