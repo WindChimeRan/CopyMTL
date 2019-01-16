@@ -36,6 +36,8 @@ NYT dataset:
 I follow most of the setting of the paper.
 In the experiment, I find that the pretrained embedding is not crucial. I set the NYT embedding size to 200 and gain 0.02 improvement in F1.
 
+**Update**: embedding is crutial for LSTM!! improve F1 from 0.544 -> 0.560 (same with the paper reported)
+
 
 ## Result
 
