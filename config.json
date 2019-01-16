@@ -2,7 +2,7 @@
   "_comments_1"                          : "decoder_method: 0 for OneDecoder, 1 for MultiDecoder",
   "decoder_method"                      : 0           ,
   "_comments_2"                         : "nyt or webnlg",
-  "dataset"                             : "webnlg",
+  "dataset"                             : "nyt",
   "triple_number"                       : 5           ,
   "save_freq"                           : 2          ,
   "learning_rate"                       : 0.001       ,

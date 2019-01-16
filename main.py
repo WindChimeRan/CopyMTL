@@ -14,9 +14,16 @@ from model import Seq2seq
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', '-g', type=str, default='0', help='gpu id')
 parser.add_argument('--mode', '-m', type=str, default='train', help='train/valid/test')
+parser.add_argument('--cell', '-c', type=str, default='lstm', help='gru/lstm')
+parser.add_argument('--decoder_type', '-d', type=str, default='multi', help='one/multi')
 
 args = parser.parse_args()
 mode = args.mode
+cell_name = args.cell
+decoder_type = args.decoder_type
+
+torch.manual_seed(77) # cpu
+torch.cuda.manual_seed(77) #gpu
 
 
 class Evaluator(object):
@@ -33,7 +40,9 @@ class Evaluator(object):
         self.data = data_prepare.Data(data, config.batch_size, config)
 
     def load_model(self) -> None:
-        model_path = os.path.join(self.config.runner_path, 'model.pkl')
+
+        # model_path = os.path.join(self.config.runner_path, 'model.pkl')
+        model_path = os.path.join('saved_model', self.config.dataset_name + '_' + self.config.cell_name + '.pkl')
         self.seq2seq.load_state_dict(torch.load(model_path))
 
     def test_step(self, batch: data_prepare.InputData) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -74,7 +83,7 @@ class SupervisedTrainer(object):
 
         self.device = device
 
-        self.seq2seq = Seq2seq(config, device=device)
+        self.seq2seq = Seq2seq(config, device=device, load_emb=True)
         self.loss = nn.NLLLoss()
         self.optimizer = torch.optim.Adam(self.seq2seq.parameters())
 
@@ -116,21 +125,24 @@ class SupervisedTrainer(object):
                 batch = self.data.next_batch(is_random=True)
                 loss = self.train_step(batch)
 
-            model_path = os.path.join(self.config.runner_path, 'model.pkl')
+            model_path = os.path.join('saved_model', self.config.dataset_name + '_' + self.config.cell_name + '.pkl')
             torch.save(self.seq2seq.state_dict(), model_path)
 
             if evaluator:
                 evaluator.data.reset()
                 evaluator.load_model()
                 f1, precision, recall = evaluator.test()
-                print(epoch, loss.item(), f1, precision, recall)
+                print("epoch %d \t loss: %f \t F1: %f \t P: %f \t R: %f" % (epoch, loss.item(), f1, precision, recall))
 
 
 if __name__ == '__main__':
 
     config_filename = './config.json'
-    cell_name = 'gru'
-    config = const.Config(config_filename=config_filename, cell_name=cell_name)
+    config = const.Config(config_filename=config_filename, cell_name=cell_name, decoder_type=decoder_type)
+
+    assert cell_name in ['lstm', 'gru']
+    assert decoder_type in ['one', 'multi']
+
     if config.dataset_name == const.DataSet.NYT:
         prepare = data_prepare.NYTPrepare(config)
     elif config.dataset_name == const.DataSet.WEBNLG:
@@ -145,7 +157,7 @@ if __name__ == '__main__':
 
     if train:
         trainer = SupervisedTrainer(config, device)
-        evaluator = Evaluator(config, 'train', device)
+        evaluator = Evaluator(config, 'test', device)
         trainer.train(evaluator)
     else:
         tester = Evaluator(config, mode, device)

@@ -39,7 +39,7 @@ class DecoderMethod:
 
 
 class Config:
-    def __init__(self, config_filename=None, cell_name='lstm'):
+    def __init__(self, config_filename=None, cell_name='lstm', decoder_type='one'):
         home = './'
         if config_filename is not None:
             print('config filename: %s' % config_filename)
@@ -52,6 +52,7 @@ class Config:
             self.encoder_num_units = cfg["encoder_num_units"]
             self.decoder_num_units = cfg["decoder_num_units"]
             self.cell_name = cell_name
+            self.decoder_type = decoder_type
             self.learning_rate = cfg["learning_rate"]
             self.batch_size = cfg["batch_size"]
             self.decoder_output_max_length = self.triple_number * 3
