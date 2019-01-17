@@ -8,7 +8,7 @@ Official tensorflow version [copy_re_tensorflow](https://github.com/xiangrongzen
 
 python3
 
-pytorch 0.4.0 or 1.0
+pytorch 0.4.0 -- 1.0
 
 ## Modify the Data path
 
@@ -27,32 +27,49 @@ NYT dataset:
 
 ## Run
 
-`python main.py --gpu 0 --mode train`
+`python main.py --gpu 0 --mode train --cell lstm -decoder_type one`
 
-`python main.py --gpu 0 --mode test`
+`python main.py --gpu 0 --mode test --cell lstm -decoder_type one`
 
-## Setting
 
-I follow most of the setting of the paper.
-In the experiment, I find that the pretrained embedding is not crucial. I set the NYT embedding size to 200 and gain 0.02 improvement in F1.
+# Difference
 
-**Update**: embedding is crutial for LSTM!! improve F1 from 0.544 -> 0.560 (same with the paper reported)
+My MultiDecoder does not make difference with regard to the F1 score. I still cannot figure out the reason.
 
+Official version fixes an [eos bug](https://github.com/xiangrongzeng/copy_re/commit/abe442eaee941ca588b7cd8daec0eec0faa5e8ef).
+In this PyTorch reproduction, I think I have already bypassed the bug, however, there's no performance boost in WebNLG as they said.
+
+MultiDecoder + GRU is bad. The training curve shows a significant overfitting. I don't know why.
 
 ## Result
 
-Almost reproduce the result in the paper.
+OneDecoder + GRU
 
 | Dataset | F1 | Precision | Recall |
 | ------ | ------ | ------ | ------ |
 | webnlg | 0.30 | 0.32 |0.28 |
 | nyt| 0.52 | 0.55 | 0.49 |
 
-## TODO
+OneDecoder + LSTM
 
-**LSTM**
+| Dataset | F1 | Precision | Recall |
+| ------ | ------ | ------ | ------ |
+| webnlg | 0.28 | 0.30 | 0.26 |
+| nyt| 0.54 | 0.59 | 0.50 |
 
-**MultiDecoder**
+**MultiDecoder + GRU**
+
+| Dataset | F1 | Precision | Recall |
+| ------ | ------ | ------ | ------ |
+| webnlg | 0.28 | 0.30 | 0.26 |
+| nyt    | 0.45 | 0.49 | 0.41 |
+
+MultiDecoder + LSTM
+
+| Dataset | F1 | Precision | Recall |
+| ------ | ------ | ------ | ------ |
+| webnlg | 0.29 | 0.31 | 0.27 |
+| nyt    | 0.56 | 0.60 | 0.52 |
 
 
 

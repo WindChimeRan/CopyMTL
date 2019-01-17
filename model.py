@@ -98,7 +98,7 @@ class Decoder(nn.Module):
     def do_copy(self, output: torch.Tensor, encoder_outputs: torch.Tensor) -> torch.Tensor:
 
         out = torch.cat((output.unsqueeze(1).expand_as(encoder_outputs), encoder_outputs), dim=2)
-        out = F.selu(self.do_copy_linear(out).squeeze(2))
+        out = F.relu(self.do_copy_linear(out).squeeze(2))
 
         return out
 
@@ -124,8 +124,8 @@ class Decoder(nn.Module):
 
         output = output.squeeze()
 
-        eos_logits = F.selu(self.do_eos(output))
-        predict_logits = F.selu(self.do_predict(output))
+        eos_logits = F.relu(self.do_eos(output))
+        predict_logits = F.relu(self.do_predict(output))
 
         predict_logits = F.log_softmax(torch.cat((predict_logits, eos_logits), dim=1), dim=1)
 
@@ -285,8 +285,6 @@ class OneDecoder(Decoder):
         return pred_action_list, pred_logits_list
 
 
-
-
 class Seq2seq(nn.Module):
     def __init__(self, config: const.Config, device, load_emb=False, update_emb=True):
         super(Seq2seq, self).__init__()
@@ -298,7 +296,7 @@ class Seq2seq(nn.Module):
         self.words_number = config.words_number
         self.maxlen = config.max_sentence_length
 
-        self.word_embedding = nn.Embedding(self.words_number + 2, self.emb_size)
+        self.word_embedding = nn.Embedding(self.words_number + 1, self.emb_size)
         if load_emb:
             self.load_pretrain_emb(config)
         self.word_embedding.weight.requires_grad = update_emb
@@ -317,13 +315,14 @@ class Seq2seq(nn.Module):
     def load_pretrain_emb(self, config: const.Config) -> None:
         if os.path.isfile(config.words_id2vector_filename):
             # logger.info('Word Embedding init from %s' % config.words_id2vector_filename)
+            print('load_embedding!')
             words_id2vec = json.load(open(config.words_id2vector_filename, 'r'))
-            words_vectors = [0] * (len(words_id2vec) + 2)
+            words_vectors = [0] * (len(words_id2vec) + 1)
 
             for i, key in enumerate(words_id2vec):
                 words_vectors[int(key)] = words_id2vec[key]
 
-            words_vectors[len(words_id2vec) + 1] = [0] * len(words_id2vec[key])
+            # words_vectors[len(words_id2vec) + 1] = [0] * len(words_id2vec[key])
             words_vectors[len(words_id2vec)] = [0] * len(words_id2vec[key])
 
             self.word_embedding.weight.data.copy_(torch.from_numpy(np.array(words_vectors)))

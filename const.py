@@ -71,13 +71,13 @@ class Config:
         data_home = os.path.join(home, 'data', DataSet.name)
         if DataSet.name == DataSet.NYT:
             self.words_number = 90760
-            self.embedding_dim = 300
+            self.embedding_dim = 100
             self.relation_number = 25
             self.max_sentence_length = 100
             self.origin_file_path = os.path.join(data_home, 'origin/')
-            self.words2id_filename = os.path.join(data_home, 'words2id.json')
-            self.relations2id_filename = os.path.join(data_home, 'relations2id.json')
-            self.words_id2vector_filename = os.path.join(data_home, 'words_id2vector.json')
+            self.words2id_filename = os.path.join(data_home, 'seq2seq_re','words2id.json')
+            self.relations2id_filename = os.path.join(data_home, 'seq2seq_re', 'relations2id.json')
+            self.words_id2vector_filename = os.path.join(data_home, 'seq2seq_re', 'words_id2vector.json')
             self.raw_train_filename = os.path.join(data_home, 'origin/raw_train.json')
             self.raw_test_filename = os.path.join(data_home, 'origin/raw_test.json')
             self.raw_valid_filename = os.path.join(data_home, 'origin/raw_valid.json')
@@ -87,7 +87,7 @@ class Config:
             self.summary_filename = os.path.join(self.runner_path, 'seq2seq_re_graph')
         if DataSet.name == DataSet.WEBNLG:
             self.words_number = 5928
-            self.embedding_dim = 200
+            self.embedding_dim = 100
             self.relation_number = 247
             self.max_sentence_length = 80
             data_home = os.path.join(data_home, 'entity_end_position')

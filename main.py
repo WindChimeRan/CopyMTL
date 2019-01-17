@@ -42,7 +42,8 @@ class Evaluator(object):
     def load_model(self) -> None:
 
         # model_path = os.path.join(self.config.runner_path, 'model.pkl')
-        model_path = os.path.join('saved_model', self.config.dataset_name + '_' + self.config.cell_name + '.pkl')
+        model_path = os.path.join('saved_model',
+                                  self.config.dataset_name + '_' + self.config.cell_name + '_' + decoder_type + '.pkl')
         self.seq2seq.load_state_dict(torch.load(model_path))
 
     def test_step(self, batch: data_prepare.InputData) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -125,7 +126,7 @@ class SupervisedTrainer(object):
                 batch = self.data.next_batch(is_random=True)
                 loss = self.train_step(batch)
 
-            model_path = os.path.join('saved_model', self.config.dataset_name + '_' + self.config.cell_name + '.pkl')
+            model_path = os.path.join('saved_model', self.config.dataset_name + '_' + self.config.cell_name +'_' + decoder_type + '.pkl')
             torch.save(self.seq2seq.state_dict(), model_path)
 
             if evaluator:
