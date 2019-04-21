@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', '-g', type=str, default='0', help='gpu id')
 parser.add_argument('--mode', '-m', type=str, default='train', help='train/valid/test')
 parser.add_argument('--cell', '-c', type=str, default='lstm', help='gru/lstm')
-parser.add_argument('--decoder_type', '-d', type=str, default='multi', help='one/multi')
+parser.add_argument('--decoder_type', '-d', type=str, default='one', help='one/multi')
 
 args = parser.parse_args()
 mode = args.mode
@@ -74,7 +74,24 @@ class Evaluator(object):
             gold.extend(batch_data.all_triples)
 
         f1, precision, recall = evaluation.compare(predicts, gold, self.config, show_rate=None, simple=True)
+        self.data.reset()
         return f1, precision, recall
+
+    def rel_test(self) -> Tuple[Tuple[float, float, float]]:
+
+        predicts = []
+        gold = []
+        for batch_i in range(self.data.batch_number):
+            batch_data = self.data.next_batch(is_random=False)
+            pred_action_list, pred_logits_list = self.test_step(batch_data)
+            pred_action_list = pred_action_list.cpu().numpy()
+
+            predicts.extend(pred_action_list)
+            gold.extend(batch_data.all_triples)
+
+        (r_f1, r_precision, r_recall), (e_f1, e_precision, e_recall) = evaluation.rel_entity_compare(predicts, gold, self.config)
+        self.data.reset()
+        return (r_f1, r_precision, r_recall), (e_f1, e_precision, e_recall)
 
 
 class SupervisedTrainer(object):
@@ -133,7 +150,11 @@ class SupervisedTrainer(object):
                 evaluator.data.reset()
                 evaluator.load_model()
                 f1, precision, recall = evaluator.test()
+                (r_f1, r_precision, r_recall), (e_f1, e_precision, e_recall) = evaluator.rel_test()
+                print('_' * 60)
                 print("epoch %d \t loss: %f \t F1: %f \t P: %f \t R: %f" % (epoch, loss.item(), f1, precision, recall))
+                print("relation \t F1: %f \t P: %f \t R: %f \t" % (r_f1, r_precision, r_recall))
+                print("entity \t F1: %f \t P: %f \t R: %f \t" % (e_f1, e_precision, e_recall))
 
 
 if __name__ == '__main__':
@@ -166,5 +187,10 @@ if __name__ == '__main__':
 
         f1, precision, recall = tester.test()
 
-        print(f1, precision, recall)
-
+        rel_f1, rel_precision, rel_recall = tester.rel_test()
+        # print('_' * 60)
+        print("triplet \t F1: %f \t P: %f \t R: %f \t" % (f1, precision, recall))
+        #
+        # print('.' * 60)
+        # print("relation \t F1: %f \t P: %f \t R: %f \t" % (rel_f1, rel_precision, rel_recall))
+        #

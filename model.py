@@ -19,6 +19,8 @@ class Encoder(nn.Module):
         self.words_number = config.words_number
         self.maxlen = config.max_sentence_length
 
+        self.dropout = nn.Dropout(0.1)
+
         self.embedding = embedding
         self.cell_name = config.cell_name
         if config.cell_name == 'gru':
@@ -31,10 +33,12 @@ class Encoder(nn.Module):
     def forward(self, sentence: torch.Tensor, lengths: List[int]) -> Tuple[torch.Tensor, torch.Tensor]:
 
         embedded = self.embedding(sentence)
+
+        # embedded = self.dropout(embedded)
+
         if lengths:
             embedded = nn.utils.rnn.pack_padded_sequence(
                 embedded, lengths=lengths, batch_first=True)
-
 
         output, hidden = self.rnn(embedded)
 
@@ -90,7 +94,7 @@ class Decoder(nn.Module):
         # decoder_state.size() == torch.Size([1, 100, 1000])
         # -> torch.Size([100, 1, 1000]) -> torch.Size([100, 80, 1000]) -cat-> torch.Size([100, 80, 2000])
         attn_weight = torch.cat((decoder_state.permute(1, 0, 2).expand_as(encoder_outputs), encoder_outputs), dim=2)
-        attn_weight = F.softmax(F.selu(self.attn(attn_weight)), dim=1)
+        attn_weight = F.softmax((self.attn(attn_weight)), dim=1)
         attn_applied = torch.bmm(attn_weight.permute(0, 2, 1), encoder_outputs).squeeze(1)
 
         return attn_applied
@@ -98,8 +102,8 @@ class Decoder(nn.Module):
     def do_copy(self, output: torch.Tensor, encoder_outputs: torch.Tensor) -> torch.Tensor:
 
         out = torch.cat((output.unsqueeze(1).expand_as(encoder_outputs), encoder_outputs), dim=2)
-        out = F.relu(self.do_copy_linear(out).squeeze(2))
-
+        # out = F.selu(self.do_copy_linear(out).squeeze(2))
+        out = (self.do_copy_linear(out).squeeze(2))
         return out
 
     def _decode_step(self, rnn_cell: nn.modules,
@@ -124,18 +128,30 @@ class Decoder(nn.Module):
 
         output = output.squeeze()
 
-        eos_logits = F.relu(self.do_eos(output))
-        predict_logits = F.relu(self.do_predict(output))
+        # eos_logits = F.selu(self.do_eos(output))
+        # predict_logits = F.selu(self.do_predict(output))
+        eos_logits = (self.do_eos(output))
+        predict_logits = (self.do_predict(output))
 
         predict_logits = F.log_softmax(torch.cat((predict_logits, eos_logits), dim=1), dim=1)
 
         copy_logits = self.do_copy(output, encoder_outputs)
 
         # assert copy_logits.size() == first_entity_mask.size()
+        # original
         copy_logits = copy_logits * first_entity_mask
 
         copy_logits = torch.cat((copy_logits, eos_logits), dim=1)
         copy_logits = F.log_softmax(copy_logits, dim=1)
+
+        # # bug fix
+        # copy_logits = torch.cat((copy_logits, eos_logits), dim=1)
+        # first_entity_mask = torch.cat((first_entity_mask, torch.ones_like(eos_logits)), dim=1)
+        #
+        # copy_logits = F.softmax(copy_logits, dim=1)
+        # copy_logits = copy_logits * first_entity_mask
+        # copy_logits = torch.clamp(copy_logits, 1e-10, 1.)
+        # copy_logits = torch.log(copy_logits)
 
         return (predict_logits, copy_logits), decoder_state
 

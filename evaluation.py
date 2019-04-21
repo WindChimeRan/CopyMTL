@@ -134,6 +134,39 @@ def error_analyse(predicts, gold, config, entity_or_relation='entity'):
     logger.info('Error Analyse: %s: Precision %s, Recall %s, F1 %s' % (entity_or_relation, precision, recall, f1))
 
 
+def rel_entity_compare(predict, gold, config):
+    predict_number = 0
+    gold_number = 0
+    correct_num = 0
+    correct_e = 0
+    for p, g in zip(predict, gold):
+        p_triples = _triplelist2triples_(p, config)
+        g_triples = _triplelist2triples_(g, config)
+
+        r_p = list(map(lambda x: x[0], p_triples))
+        g_p = list(map(lambda x: x[0], g_triples))
+
+        r_e = list(map(lambda x: ' '.join(map(str, x[1:])), p_triples))
+        g_e = list(map(lambda x: ' '.join(map(str, x[1:])), g_triples))
+
+        predict_number += len(p_triples)
+        gold_number += len(g_triples)
+
+        result_e = [1 if r in g_e else 0 for r in r_e]
+
+        result = [1 if r in g_p else 0 for r in r_p]
+        correct_num += sum(result)
+        correct_e += sum(result_e)
+
+    def fpr(num):
+        precision = num * 1.0 / predict_number if predict_number > 0 else 0.
+        recall = num * 1.0 / gold_number if gold_number > 0 else 0.0
+        f1 = 2 * precision * recall / (precision + recall) if precision * recall > 0 else 0.
+        return f1, precision, recall
+
+    return (fpr(correct_num), fpr(correct_e))
+
+
 def compare_(predict, gold, name, config, show_rate=None, is_show=True):
     predict_number = 0
     gold_number = 0
