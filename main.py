@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
         f1, precision, recall = tester.test()
 
-        rel_f1, rel_precision, rel_recall = tester.rel_test()
+        # rel_f1, rel_precision, rel_recall = tester.rel_test()
         # print('_' * 60)
         print("triplet \t F1: %f \t P: %f \t R: %f \t" % (f1, precision, recall))
         #

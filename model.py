@@ -8,6 +8,11 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 
+# torch_bool 
+try:
+    torch_bool = torch.bool
+except:
+    torch_bool = torch.uint8
 
 class Encoder(nn.Module):
     def __init__(self, config: const.Config, embedding: nn.modules.sparse.Embedding) -> None:
@@ -87,7 +92,9 @@ class Decoder(nn.Module):
 
         self.do_eos = nn.Linear(self.hidden_size, 1)
         self.do_predict = nn.Linear(self.hidden_size, self.relation_number)
-        self.do_copy_linear = nn.Linear(self.hidden_size * 2, 1)
+
+        self.fuse = nn.Linear(self.hidden_size * 2, 100)
+        self.do_copy_linear = nn.Linear(100, 1)
 
     def calc_context(self, decoder_state: torch.Tensor, encoder_outputs: torch.Tensor) -> torch.Tensor:
 
@@ -102,8 +109,9 @@ class Decoder(nn.Module):
     def do_copy(self, output: torch.Tensor, encoder_outputs: torch.Tensor) -> torch.Tensor:
 
         out = torch.cat((output.unsqueeze(1).expand_as(encoder_outputs), encoder_outputs), dim=2)
-        # out = F.selu(self.do_copy_linear(out).squeeze(2))
-        out = (self.do_copy_linear(out).squeeze(2))
+        out = F.selu(self.fuse(F.selu(out)))
+        out = self.do_copy_linear(out).squeeze(2)
+        # out = (self.do_copy_linear(out).squeeze(2))
         return out
 
     def _decode_step(self, rnn_cell: nn.modules,
@@ -139,7 +147,8 @@ class Decoder(nn.Module):
 
         # assert copy_logits.size() == first_entity_mask.size()
         # original
-        copy_logits = copy_logits * first_entity_mask
+        # copy_logits = copy_logits * first_entity_mask
+        # copy_logits = copy_logits
 
         copy_logits = torch.cat((copy_logits, eos_logits), dim=1)
         copy_logits = F.log_softmax(copy_logits, dim=1)
@@ -223,14 +232,14 @@ class MultiDecoder(Decoder):
                     output = self.relation_embedding(output)
 
                 else:
-                    copy_index = torch.zeros_like(sentence).scatter_(1, max_action.unsqueeze(1), 1).to(torch.uint8)
+                    copy_index = torch.zeros_like(sentence).scatter_(1, max_action.unsqueeze(1), 1).to(torch_bool)
                     output = sentence[copy_index]
                     output = self.word_embedding(output)
 
                 if t % 3 == 1:
                     first_entity_mask = torch.ones(go.size()[0], self.maxlen + 1).to(self.device)
 
-                    index = torch.zeros_like(first_entity_mask).scatter_(1, max_action.unsqueeze(1), 1).to(torch.uint8)
+                    index = torch.zeros_like(first_entity_mask).scatter_(1, max_action.unsqueeze(1), 1).to(torch_bool)
 
                     first_entity_mask[index] = 0
                     first_entity_mask = first_entity_mask[:, :-1]
@@ -283,14 +292,14 @@ class OneDecoder(Decoder):
                 output = self.relation_embedding(output)
 
             else:
-                copy_index = torch.zeros_like(sentence).scatter_(1, max_action.unsqueeze(1), 1).to(torch.uint8)
+                copy_index = torch.zeros_like(sentence).scatter_(1, max_action.unsqueeze(1), 1).to(torch_bool)
                 output = sentence[copy_index]
                 output = self.word_embedding(output)
 
             if t % 3 == 1:
                 first_entity_mask = torch.ones(go.size()[0], self.maxlen + 1).to(self.device)
 
-                index = torch.zeros_like(first_entity_mask).scatter_(1, max_action.unsqueeze(1), 1).to(torch.uint8)
+                index = torch.zeros_like(first_entity_mask).scatter_(1, max_action.unsqueeze(1), 1).to(torch_bool)
 
                 first_entity_mask[index] = 0
                 first_entity_mask = first_entity_mask[:, :-1]
