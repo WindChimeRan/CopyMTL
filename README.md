@@ -1,6 +1,6 @@
 # CopyMTL: Copy Mechanism for Joint Extraction of Entities and Relations with Multi-Task Learning
 
-accepted by AAAI-2020
+[Paper](https://arxiv.org/abs/1911.10438) accepted by AAAI-2020 
 
 This is a followup paper of "Extracting Relational Facts by an End-to-End Neural Model with Copy Mechanism" ACL2018 [CopyRE](http://aclweb.org/anthology/P18-1047)
 
