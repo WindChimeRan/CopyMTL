@@ -1,11 +1,14 @@
+# UPDATE: This paper is part of the our EMNLP2020 findings: [paper](https://arxiv.org/pdf/2009.07503.pdf) [code](https://github.com/WindChimeRan/OpenJERE).
+
+- Model bias: CopyMTL suffers from the exposure bias problem, which can be solved by our Seq2UMTree.
+- Data bias: NYT dataset is overfitted by SoTA models. This is because 90% test triplets reoccured in the training data.
+- We release OpenJERE toolkit, including multiple baselines and datasets. CopyMTL can be found here!
+  
 # CopyMTL: Copy Mechanism for Joint Extraction of Entities and Relations with Multi-Task Learning
 
 [Paper](https://arxiv.org/abs/1911.10438) accepted by AAAI-2020 
 
 This is a followup paper of "Extracting Relational Facts by an End-to-End Neural Model with Copy Mechanism" ACL2018 [CopyRE](http://aclweb.org/anthology/P18-1047)
-
-This repo only contains CopyRE' part. MTL part is very old and messy, we are not going to release it. 
-In other words, this repo only uses the last token of the entity for training and evaluation. If you want CopyMTL to manipulate complete entities, we suggest using [pytorch-crf](https://pytorch-crf.readthedocs.io/en/stable/) to implement the sequence labeling module for encoder. The dataset from CopyRE does not support MTL as well, because it lose the NER annotation. You'll have to re-preprocessing the data from scratch to gain full entity, rather than the links below.
 
 
 ## Environment
