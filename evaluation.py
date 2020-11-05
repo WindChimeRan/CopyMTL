@@ -13,6 +13,16 @@ logger = logging.getLogger('mylogger')
 
 
 def compare(predict, gold, config, show_rate=None, simple=True):
+    """
+    Compare two gold objects.
+
+    Args:
+        predict: (todo): write your description
+        gold: (todo): write your description
+        config: (todo): write your description
+        show_rate: (bool): write your description
+        simple: (todo): write your description
+    """
     normal_triples_gold = []  # normal triples
     normal_triples_predict = []  # normal triples
     multi_label_gold = []  # multi label triples
@@ -112,6 +122,15 @@ def triples2relations(triples):
 
 
 def error_analyse(predicts, gold, config, entity_or_relation='entity'):
+    """
+    Analyse the error.
+
+    Args:
+        predicts: (todo): write your description
+        gold: (todo): write your description
+        config: (todo): write your description
+        entity_or_relation: (todo): write your description
+    """
     predict_number = 0
     gold_number = 0
     correct_num = 0
@@ -135,6 +154,14 @@ def error_analyse(predicts, gold, config, entity_or_relation='entity'):
 
 
 def rel_entity_compare(predict, gold, config):
+    """
+    R compute the rel rel_entity.
+
+    Args:
+        predict: (todo): write your description
+        gold: (todo): write your description
+        config: (dict): write your description
+    """
     predict_number = 0
     gold_number = 0
     correct_num = 0
@@ -159,6 +186,12 @@ def rel_entity_compare(predict, gold, config):
         correct_e += sum(result_e)
 
     def fpr(num):
+        """
+        Calculate fpr - recall.
+
+        Args:
+            num: (int): write your description
+        """
         precision = num * 1.0 / predict_number if predict_number > 0 else 0.
         recall = num * 1.0 / gold_number if gold_number > 0 else 0.0
         f1 = 2 * precision * recall / (precision + recall) if precision * recall > 0 else 0.
@@ -168,6 +201,17 @@ def rel_entity_compare(predict, gold, config):
 
 
 def compare_(predict, gold, name, config, show_rate=None, is_show=True):
+    """
+    Compute the gold of a gold.
+
+    Args:
+        predict: (todo): write your description
+        gold: (todo): write your description
+        name: (str): write your description
+        config: (todo): write your description
+        show_rate: (bool): write your description
+        is_show: (bool): write your description
+    """
     predict_number = 0
     gold_number = 0
     correct_num = 0
@@ -201,6 +245,13 @@ def compare_(predict, gold, name, config, show_rate=None, is_show=True):
 
 
 def sent_id2sent_str(sent_id, id2words):
+    """
+    Given a sentence id2words return list of sentence_id2words.
+
+    Args:
+        sent_id: (str): write your description
+        id2words: (int): write your description
+    """
     words = []
     for idx in sent_id:
         if idx > 0:
@@ -214,6 +265,17 @@ def sent_id2sent_str(sent_id, id2words):
 
 
 def triple_id2triple_str(triple_id, sent_id, id2words, id2relations, is_relation_first, config):
+    """
+    Convert triples to triples.
+
+    Args:
+        triple_id: (str): write your description
+        sent_id: (str): write your description
+        id2words: (str): write your description
+        id2relations: (todo): write your description
+        is_relation_first: (str): write your description
+        config: (dict): write your description
+    """
     assert len(triple_id) == 3
     entity_1_str, entity_2_str, relation_str = 'None', 'None', 'None'
     if is_relation_first:
@@ -240,6 +302,17 @@ def triple_id2triple_str(triple_id, sent_id, id2words, id2relations, is_relation
 
 
 def triples2triples_str(triples, sent_id, id2words, id2relations, is_relation_first, config):
+    """
+    Convert triples to triples.
+
+    Args:
+        triples: (str): write your description
+        sent_id: (str): write your description
+        id2words: (str): write your description
+        id2relations: (str): write your description
+        is_relation_first: (str): write your description
+        config: (todo): write your description
+    """
     triples_str = []
     for triple in triples:
         triple_string = triple_id2triple_str(triple, sent_id, id2words, id2relations, is_relation_first, config)
@@ -248,11 +321,28 @@ def triples2triples_str(triples, sent_id, id2words, id2relations, is_relation_fi
 
 
 def _reverse_dict_(a_dict):
+    """
+    Return a copy of dicts.
+
+    Args:
+        a_dict: (dict): write your description
+    """
     new_dict = {v: k for k, v in a_dict.items()}
     return new_dict
 
 
 def visualize(sents_id, gold, predict, files_name, config, is_relation_first=True):
+    """
+    Visualize relation.
+
+    Args:
+        sents_id: (str): write your description
+        gold: (todo): write your description
+        predict: (todo): write your description
+        files_name: (str): write your description
+        config: (todo): write your description
+        is_relation_first: (bool): write your description
+    """
     print('Visualizing ...')
     print(config.words2id_filename)
     print(config.relations2id_filename)

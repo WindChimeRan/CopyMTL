@@ -16,6 +16,12 @@ class DataSet():
 
     @staticmethod
     def set_dataset(dataset_name):
+        """
+        Sets the dataset for this dataset. : param dataset_name | <str >
+
+        Args:
+            dataset_name: (str): write your description
+        """
         if dataset_name == DataSet.NYT:
             DataSet.name = DataSet.NYT
         elif dataset_name == DataSet.WEBNLG:
@@ -35,11 +41,26 @@ class DecoderMethod:
 
     @staticmethod
     def set(idx):
+        """
+        Sets a set_DEC.
+
+        Args:
+            idx: (dict): write your description
+        """
         return [DecoderMethod.ONE_DECODER, DecoderMethod.MULTI_DECODER][idx]
 
 
 class Config:
     def __init__(self, config_filename=None, cell_name='lstm', decoder_type='one'):
+        """
+        Initialize a new dataset.
+
+        Args:
+            self: (todo): write your description
+            config_filename: (str): write your description
+            cell_name: (str): write your description
+            decoder_type: (str): write your description
+        """
         home = './'
         if config_filename is not None:
             print('config filename: %s' % config_filename)

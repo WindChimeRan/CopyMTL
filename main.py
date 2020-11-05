@@ -28,6 +28,19 @@ torch.cuda.manual_seed(77) #gpu
 
 class Evaluator(object):
     def __init__(self, config: const.Config, mode: str, device: torch.device) -> None:
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (list): write your description
+            Config: (todo): write your description
+            mode: (todo): write your description
+            device: (todo): write your description
+            torch: (todo): write your description
+            device: (todo): write your description
+        """
 
         self.config = config
 
@@ -40,6 +53,12 @@ class Evaluator(object):
         self.data = data_prepare.Data(data, config.batch_size, config)
 
     def load_model(self) -> None:
+        """
+        Load the model from disk.
+
+        Args:
+            self: (str): write your description
+        """
 
         # model_path = os.path.join(self.config.runner_path, 'model.pkl')
         model_path = os.path.join('saved_model',
@@ -47,6 +66,15 @@ class Evaluator(object):
         self.seq2seq.load_state_dict(torch.load(model_path))
 
     def test_step(self, batch: data_prepare.InputData) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Perform a batch of the batch of examples.
+
+        Args:
+            self: (todo): write your description
+            batch: (array): write your description
+            data_prepare: (array): write your description
+            InputData: (todo): write your description
+        """
 
         sentence = batch.sentence_fw
         sentence_eos = batch.input_sentence_append_eos
@@ -62,6 +90,12 @@ class Evaluator(object):
         return pred_action_list, pred_logits_list
 
     def test(self) -> Tuple[float, float, float]:
+        """
+        Perform a single test.
+
+        Args:
+            self: (todo): write your description
+        """
 
         predicts = []
         gold = []
@@ -78,6 +112,12 @@ class Evaluator(object):
         return f1, precision, recall
 
     def rel_test(self) -> Tuple[Tuple[float, float, float]]:
+        """
+        Compute the learning rate.
+
+        Args:
+            self: (todo): write your description
+        """
 
         predicts = []
         gold = []
@@ -96,6 +136,18 @@ class Evaluator(object):
 
 class SupervisedTrainer(object):
     def __init__(self, config: const.Config, device: torch.device) -> None:
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (list): write your description
+            Config: (todo): write your description
+            device: (todo): write your description
+            torch: (todo): write your description
+            device: (todo): write your description
+        """
 
         self.config = config
 
@@ -112,6 +164,15 @@ class SupervisedTrainer(object):
         self.epoch_number = config.epoch_number + 1
 
     def train_step(self, batch: data_prepare.InputData) -> torch.Tensor:
+        """
+        Perform a single training step.
+
+        Args:
+            self: (todo): write your description
+            batch: (todo): write your description
+            data_prepare: (todo): write your description
+            InputData: (todo): write your description
+        """
 
         self.optimizer.zero_grad()
 
@@ -136,6 +197,13 @@ class SupervisedTrainer(object):
         return loss
 
     def train(self, evaluator: Evaluator=None) -> None:
+        """
+        Training function.
+
+        Args:
+            self: (todo): write your description
+            evaluator: (todo): write your description
+        """
 
         for epoch in range(1, self.epoch_number + 1):
 
