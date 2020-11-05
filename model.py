@@ -16,6 +16,20 @@ except:
 
 class Encoder(nn.Module):
     def __init__(self, config: const.Config, embedding: nn.modules.sparse.Embedding) -> None:
+        """
+        Initialize the module.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (list): write your description
+            Config: (todo): write your description
+            embedding: (todo): write your description
+            nn: (todo): write your description
+            modules: (str): write your description
+            sparse: (todo): write your description
+            Embedding: (todo): write your description
+        """
         super(Encoder, self).__init__()
         self.config = config
 
@@ -36,6 +50,16 @@ class Encoder(nn.Module):
             raise ValueError('cell name should be gru/lstm!')
 
     def forward(self, sentence: torch.Tensor, lengths: List[int]) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward computation.
+
+        Args:
+            self: (todo): write your description
+            sentence: (todo): write your description
+            torch: (str): write your description
+            Tensor: (todo): write your description
+            lengths: (todo): write your description
+        """
 
         embedded = self.embedding(sentence)
 
@@ -62,6 +86,21 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(self, config: const.Config, embedding: nn.modules.sparse.Embedding, device) -> None:
+        """
+        Initialize the device.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (list): write your description
+            Config: (todo): write your description
+            embedding: (todo): write your description
+            nn: (todo): write your description
+            modules: (str): write your description
+            sparse: (todo): write your description
+            Embedding: (todo): write your description
+            device: (todo): write your description
+        """
         super(Decoder, self).__init__()
 
         self.device = device
@@ -97,6 +136,18 @@ class Decoder(nn.Module):
         self.do_copy_linear = nn.Linear(100, 1)
 
     def calc_context(self, decoder_state: torch.Tensor, encoder_outputs: torch.Tensor) -> torch.Tensor:
+        """
+        Calculate the encoder context.
+
+        Args:
+            self: (todo): write your description
+            decoder_state: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            encoder_outputs: (str): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+        """
 
         # decoder_state.size() == torch.Size([1, 100, 1000])
         # -> torch.Size([100, 1, 1000]) -> torch.Size([100, 80, 1000]) -cat-> torch.Size([100, 80, 2000])
@@ -107,6 +158,18 @@ class Decoder(nn.Module):
         return attn_applied
 
     def do_copy(self, output: torch.Tensor, encoder_outputs: torch.Tensor) -> torch.Tensor:
+        """
+        Copy a copy of a copy.
+
+        Args:
+            self: (todo): write your description
+            output: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            encoder_outputs: (str): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+        """
 
         out = torch.cat((output.unsqueeze(1).expand_as(encoder_outputs), encoder_outputs), dim=2)
         out = F.selu(self.fuse(F.selu(out)))
@@ -120,6 +183,27 @@ class Decoder(nn.Module):
                      encoder_outputs: torch.Tensor,
                      first_entity_mask: torch.Tensor) \
             -> Tuple[Tuple[torch.Tensor, torch.Tensor], torch.Tensor]:
+        """
+        Decode the decoder.
+
+        Args:
+            self: (todo): write your description
+            rnn_cell: (int): write your description
+            nn: (str): write your description
+            modules: (list): write your description
+            emb: (str): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            decoder_state: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            encoder_outputs: (str): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            first_entity_mask: (str): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+        """
 
         if self.cell_name == 'gru':
             decoder_state_h = decoder_state
@@ -165,6 +249,13 @@ class Decoder(nn.Module):
         return (predict_logits, copy_logits), decoder_state
 
     def forward(self, *input):
+        """
+        R forward forward computation.
+
+        Args:
+            self: (todo): write your description
+            input: (todo): write your description
+        """
         raise NotImplementedError('abstract method!')
 
 
@@ -172,6 +263,21 @@ class MultiDecoder(Decoder):
 
     def __init__(self, config: const.Config, embedding: nn.modules.sparse.Embedding, device) \
             -> None:
+        """
+        Initialize the module.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (list): write your description
+            Config: (todo): write your description
+            embedding: (todo): write your description
+            nn: (todo): write your description
+            modules: (str): write your description
+            sparse: (todo): write your description
+            Embedding: (todo): write your description
+            device: (todo): write your description
+        """
         super(MultiDecoder, self).__init__(config=config, embedding=embedding, device=device)
         self.decoder_cell_number = config.decoder_output_max_length // 3
 
@@ -186,6 +292,21 @@ class MultiDecoder(Decoder):
 
     def forward(self, sentence: torch.Tensor, decoder_state: torch.Tensor, encoder_outputs: torch.Tensor) \
             -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
+        """
+        Parameters ---------- sentence : list [ n ].
+
+        Args:
+            self: (todo): write your description
+            sentence: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            decoder_state: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            encoder_outputs: (str): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+        """
 
         # sos = go = 0
 
@@ -256,10 +377,40 @@ class OneDecoder(Decoder):
 
     def __init__(self, config: const.Config, embedding: nn.modules.sparse.Embedding, device) \
             -> None:
+        """
+        Initialize the embedding.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (list): write your description
+            Config: (todo): write your description
+            embedding: (todo): write your description
+            nn: (int): write your description
+            modules: (str): write your description
+            sparse: (todo): write your description
+            Embedding: (todo): write your description
+            device: (todo): write your description
+        """
         super(OneDecoder, self).__init__(config=config, embedding=embedding, device=device)
 
     def forward(self, sentence: torch.Tensor, decoder_state: torch.Tensor, encoder_outputs: torch.Tensor) \
             -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
+        """
+        Forward computation.
+
+        Args:
+            self: (todo): write your description
+            sentence: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            decoder_state: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            encoder_outputs: (str): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+        """
 
         # sos = go = 0
 
@@ -312,6 +463,18 @@ class OneDecoder(Decoder):
 
 class Seq2seq(nn.Module):
     def __init__(self, config: const.Config, device, load_emb=False, update_emb=True):
+        """
+        Initialize the embedding.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (list): write your description
+            Config: (todo): write your description
+            device: (todo): write your description
+            load_emb: (todo): write your description
+            update_emb: (todo): write your description
+        """
         super(Seq2seq, self).__init__()
 
         self.device = device
@@ -338,6 +501,15 @@ class Seq2seq(nn.Module):
         self.to(self.device)
 
     def load_pretrain_emb(self, config: const.Config) -> None:
+        """
+        Load pre - trained embedding embedding file.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+            const: (todo): write your description
+            Config: (todo): write your description
+        """
         if os.path.isfile(config.words_id2vector_filename):
             # logger.info('Word Embedding init from %s' % config.words_id2vector_filename)
             print('load_embedding!')
@@ -354,6 +526,19 @@ class Seq2seq(nn.Module):
 
     def forward(self, sentence: torch.Tensor, sentence_eos: torch.Tensor, lengths: List[int]) \
             -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Parameters ---------- sentence : [ batch_eos : list.
+
+        Args:
+            self: (todo): write your description
+            sentence: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            sentence_eos: (todo): write your description
+            torch: (todo): write your description
+            Tensor: (todo): write your description
+            lengths: (todo): write your description
+        """
 
         o, h = self.encoder(sentence, lengths)
         pred_action_list, pred_logits_list = self.decoder(sentence=sentence_eos, decoder_state=h, encoder_outputs=o)

@@ -26,6 +26,15 @@ TorchData = collections.namedtuple('InputData', ['sentence','triplets'])
 
 class Data:
     def __init__(self, data, batch_size, config):
+        """
+        Initialize sentences.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+            batch_size: (int): write your description
+            config: (todo): write your description
+        """
         standard_outputs, sentence_length, sentence_fw, sentence_bw, sentence_pos_fw, sentence_pos_bw, input_sentence_append_eos, relations_append_eos, all_triples_id = data
         self.standard_outputs = np.asanyarray(standard_outputs)
         self.all_sentence = None
@@ -44,6 +53,13 @@ class Data:
         self.config = config
 
     def next_batch(self, is_random=True):
+        """
+        Generate next batch.
+
+        Args:
+            self: (todo): write your description
+            is_random: (bool): write your description
+        """
         if is_random:
             indexes = self.next_random_indexes()
         else:
@@ -77,6 +93,12 @@ class Data:
 
     #   select data in sequence, mainly for test
     def next_sequence_indexes(self):
+        """
+        Return next batch of the next batch.
+
+        Args:
+            self: (todo): write your description
+        """
         if self.batch_index < self.batch_number:
             indexes = np.asanyarray(range(self.batch_size * self.batch_index, (self.batch_index + 1) * self.batch_size))
             self.batch_index += 1
@@ -85,14 +107,32 @@ class Data:
             return None
 
     def reset(self):
+        """
+        Reset the internal state.
+
+        Args:
+            self: (todo): write your description
+        """
         self.batch_index = 0
 
     # randomly select a batch of data, only for train
     def next_random_indexes(self):
+        """
+        Return a random instance.
+
+        Args:
+            self: (todo): write your description
+        """
         return np.random.choice(range(self.instance_number), self.batch_size)
 
 
 def inverse(sent_index):
+    """
+    Returns a list of sentence ids.
+
+    Args:
+        sent_index: (int): write your description
+    """
     inversed = []
     for sent in sent_index:
         sent = list(sent)
@@ -102,10 +142,24 @@ def inverse(sent_index):
 
 
 def padding_sentence(sent_index, config):
+    """
+    Return the sentence sentence for sentence.
+
+    Args:
+        sent_index: (todo): write your description
+        config: (todo): write your description
+    """
     return [padding_a_sentence(sent, config.max_sentence_length) for sent in sent_index]
 
 
 def padding_a_sentence(sent, max_length):
+    """
+    Returns a list of sentence sentences.
+
+    Args:
+        sent: (todo): write your description
+        max_length: (int): write your description
+    """
     sent = list(sent)
     if len(sent) >= max_length:
         return sent[0: max_length]
@@ -115,6 +169,13 @@ def padding_a_sentence(sent, max_length):
 
 
 def append_eos2sentence(sent_index, config):
+    """
+    Append sentence to sentence.
+
+    Args:
+        sent_index: (str): write your description
+        config: (todo): write your description
+    """
     eos_idx = config.words_number
     appended = []
     for sent in sent_index:
@@ -125,6 +186,13 @@ def append_eos2sentence(sent_index, config):
 
 
 def padding_triples(all_triples_id, config):
+    """
+    Returns a list of all triples for a list
+
+    Args:
+        all_triples_id: (int): write your description
+        config: (todo): write your description
+    """
     all_triples_id = [padding_a_triples(triples, config) for triples in all_triples_id]
     return all_triples_id
 
@@ -156,6 +224,13 @@ def padding_a_triples(triples, config):
 
 
 def append_eos2relations(sent_number, config):
+    """
+    Append a list of sent_number.
+
+    Args:
+        sent_number: (int): write your description
+        config: (todo): write your description
+    """
     relations_with_eos = range(config.words_number, config.words_number + config.relation_number + 1)
     return [relations_with_eos] * sent_number
 
@@ -286,21 +361,53 @@ def is_over_lapping(triples, is_relation_first=False):
 
 class Prepare:
     def __init__(self, config):
+        """
+        Initialize the configuration.
+
+        Args:
+            self: (todo): write your description
+            config: (todo): write your description
+        """
         self.config = config
 
     def load_words(self):
+        """
+        Return a list of words in - words file.
+
+        Args:
+            self: (todo): write your description
+        """
         return json.load(open(self.config.words2id_filename, 'r'))
 
     def load_relations(self):
+        """
+        Load relationships from json file.
+
+        Args:
+            self: (todo): write your description
+        """
         return json.load(open(self.config.relations2id_filename, 'r'))
 
     @staticmethod
     def remove_tone(s):
+        """
+        Removes tone from string s.
+
+        Args:
+            s: (str): write your description
+        """
         s = unicodedata.normalize('NFD', s)
         cmb_chrs = dict.fromkeys(c for c in range(sys.maxunicode) if unicodedata.combining(unichr(c)))
         return s.translate(cmb_chrs)
 
     def load_data(self, name):
+        """
+        Load the data from disk.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+        """
         if name.lower() == 'train':
             filename = self.config.train_filename
         elif name.lower() == 'test':
@@ -319,6 +426,12 @@ class Prepare:
 class NYTPrepare(Prepare):
     @staticmethod
     def read_json(filename):
+        """
+        Read a json file
+
+        Args:
+            filename: (str): write your description
+        """
         data = []
         with open(filename, 'r') as f:
             for line in f:
@@ -328,6 +441,16 @@ class NYTPrepare(Prepare):
 
     #   flag is used to determine if save a sentence if it has no triples
     def turn2id(self, data, words2id, relations2id, flag=False):
+        """
+        Turns2id of text.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+            words2id: (int): write your description
+            relations2id: (todo): write your description
+            flag: (todo): write your description
+        """
         all_sent_id = []
         all_triples_id = []
         all_sent_length = []
@@ -389,6 +512,12 @@ class NYTPrepare(Prepare):
         return [all_sent_length, all_sent_id, all_triples_id]
 
     def prepare(self):
+        """
+        Prepares the json file.
+
+        Args:
+            self: (todo): write your description
+        """
         train_data = self.read_json(self.config.raw_train_filename)
         test_data = self.read_json(self.config.raw_test_filename)
         valid_data = self.read_json(self.config.raw_valid_filename)
@@ -412,6 +541,13 @@ class NYTPrepare(Prepare):
     #   Above functions are processing raw data
     #   Below functions are prepare the feeding data
     def process(self, data):
+        """
+        Process text processing.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+        """
         all_sent_length, all_sent_id, all_triples_id = data
         all_triples_id = change2relation_first(all_triples_id)
         standard_outputs = padding_triples(all_triples_id, self.config)
@@ -424,6 +560,13 @@ class NYTPrepare(Prepare):
                 [None] * len(sentence_fw), input_sentence_append_eos, relations_append_eos, all_triples_id]
 
     def analyse_data(self, name):
+        """
+        Analyse the data.
+
+        Args:
+            self: (todo): write your description
+            name: (str): write your description
+        """
         [_, _, all_triples_id] = self.load_data(name)
         normal_count = 0
         multi_label_count = 0
@@ -464,6 +607,13 @@ class NYTPrepare(Prepare):
 
 class WebNLGPrepare(Prepare):
     def process(self, data):
+        """
+        Parameters ---------- data.
+
+        Args:
+            self: (todo): write your description
+            data: (todo): write your description
+        """
         all_sent_id, all_triples_id = data
         all_triples_id = change2relation_first(all_triples_id)
         standard_outputs = padding_triples(all_triples_id, self.config)
